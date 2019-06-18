@@ -9,6 +9,8 @@ import UIKit
 
 class NetworkManager {
     
+    let shared = NetworkManager()
+    
     enum Method: String {
         case get = "GET"
         case put = "PUT"
@@ -25,7 +27,7 @@ class NetworkManager {
         case dataTaskError(code: Int)
     }
     
-    static func constructURL(baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:]) -> URL? {
+    func constructURL(baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:]) -> URL? {
         var url = URL(string: baseURLString)
         for path in appendingPaths {
             url?.appendPathComponent(path)
@@ -44,7 +46,7 @@ class NetworkManager {
         return urlComponents.url
     }
     
-    private static func dataTask<T: Decodable>(request: URLRequest, completion: @escaping (T?, NetworkError?) -> Void) {
+    private func dataTask<T: Decodable>(request: URLRequest, completion: @escaping (T?, NetworkError?) -> Void) {
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -74,7 +76,7 @@ class NetworkManager {
             }.resume()
     }
     
-    static func makeRequest<T: Decodable>(method: Method = .get, baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:], headers: [String: String] = [:], encodedData: Data? = nil, shouldReturnData: Bool = true, completion: @escaping (T?, NetworkError?) -> Void) {
+    func makeRequest<T: Decodable>(method: Method = .get, baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:], headers: [String: String] = [:], encodedData: Data? = nil, shouldReturnData: Bool = true, completion: @escaping (T?, NetworkError?) -> Void) {
         guard let url = constructURL(baseURLString: baseURLString, appendingPaths: appendingPaths, queries: queries) else {
             completion(nil, .constructingURLFailed)
             return
@@ -88,7 +90,7 @@ class NetworkManager {
         dataTask(request: request, completion: completion)
     }
     
-    private static func dataTask(request: URLRequest, completion: @escaping (NetworkError?) -> Void) {
+    private func dataTask(request: URLRequest, completion: @escaping (NetworkError?) -> Void) {
         URLSession.shared.dataTask(with: request) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -109,7 +111,7 @@ class NetworkManager {
         }.resume()
     }
     
-    static func makeRequest(method: Method = .get, baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:], headers: [String: String] = [:], encodedData: Data? = nil, shouldReturnData: Bool = true, completion: @escaping (NetworkError?) -> Void) {
+    func makeRequest(method: Method = .get, baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:], headers: [String: String] = [:], encodedData: Data? = nil, shouldReturnData: Bool = true, completion: @escaping (NetworkError?) -> Void) {
         guard let url = constructURL(baseURLString: baseURLString, appendingPaths: appendingPaths, queries: queries) else {
             completion(.constructingURLFailed)
             return
@@ -123,7 +125,7 @@ class NetworkManager {
         dataTask(request: request, completion: completion)
     }
     
-    static func getImage(url: URL, completion: @escaping (UIImage?, NetworkError?) -> Void) {
+    func getImage(url: URL, completion: @escaping (UIImage?, NetworkError?) -> Void) {
         URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
                 if let error = error {
@@ -149,7 +151,7 @@ class NetworkManager {
         }.resume()
     }
     
-    static func getImage(urlString: String, completion: @escaping (UIImage?, NetworkError?) -> Void) {
+    func getImage(urlString: String, completion: @escaping (UIImage?, NetworkError?) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(nil, .badURL)
             return
