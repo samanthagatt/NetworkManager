@@ -90,41 +90,6 @@ class NetworkManager {
         dataTask(request: request, completion: completion)
     }
     
-    private func dataTask(request: URLRequest, completion: @escaping (NetworkError?) -> Void) {
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
-                if let error = error {
-                    let nsError = error as NSError
-                    completion(.dataTaskError(code: nsError.code))
-                }
-                guard let httpResponse = response as? HTTPURLResponse else {
-                    completion(.noNetworkResponse)
-                    return
-                }
-                if 200..<300 ~= httpResponse.statusCode {
-                    completion(nil)
-                    return
-                } else {
-                    completion(.dataTaskError(code: httpResponse.statusCode))
-                }
-            }
-        }.resume()
-    }
-    
-    func makeRequest(method: Method = .get, baseURLString: String, appendingPaths: [String] = [], queries: [String: String] = [:], headers: [String: String] = [:], encodedData: Data? = nil, shouldReturnData: Bool = true, completion: @escaping (NetworkError?) -> Void) {
-        guard let url = constructURL(baseURLString: baseURLString, appendingPaths: appendingPaths, queries: queries) else {
-            completion(.constructingURLFailed)
-            return
-        }
-        var request = URLRequest(url: url)
-        request.httpMethod = method.rawValue
-        for header in headers {
-            request.addValue(header.value, forHTTPHeaderField: header.key)
-        }
-        request.httpBody = encodedData
-        dataTask(request: request, completion: completion)
-    }
-    
     func getImage(url: URL, completion: @escaping (UIImage?, NetworkError?) -> Void) {
         URLSession.shared.dataTask(with: url) { data, response, error in
             DispatchQueue.main.async {
